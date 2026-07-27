@@ -210,4 +210,89 @@
     </div>
 
 </body>
+</html><!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Aplicación</title>
+
+  <!-- Vinculación del Manifest -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#2e7d32">
+
+  <style>
+    /* Estilo para el banner de instalación */
+    #banner-instalacion {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #2e7d32;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      z-index: 1000;
+      text-align: center;
+    }
+
+    #btn-instalar {
+      background-color: #ffffff;
+      color: #2e7d32;
+      border: none;
+      padding: 8px 16px;
+      margin-left: 10px;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Banner de aviso -->
+  <div id="banner-instalacion">
+    <span>¿Quieres instalar esta App en tu móvil?</span>
+    <button id="btn-instalar">Instalar</button>
+  </div>
+
+  <script>
+    // 1. Registrar el Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log('Service Worker registrado con éxito'))
+        .catch(err => console.error('Error al registrar Service Worker:', err));
+    }
+
+    // 2. Capturar el evento de instalación PWA
+    let eventoInstalacion;
+    const banner = document.getElementById('banner-instalacion');
+    const btnInstalar = document.getElementById('btn-instalar');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Previene que Chrome o Android muestren el aviso por defecto de inmediato
+      e.preventDefault();
+      // Guarda el evento para ejecutarlo después
+      eventoInstalacion = e;
+      // Muestra tu banner personalizado
+      banner.style.display = 'block';
+    });
+
+    // 3. Acción al hacer clic en el botón de instalar
+    btnInstalar.addEventListener('click', async () => {
+      if (eventoInstalacion) {
+        // Muestra el mensaje nativo del sistema
+        eventoInstalacion.prompt();
+        const { outcome } = await eventoInstalacion.userChoice;
+        console.log(`Respuesta del usuario: ${outcome}`);
+        // Oculta el banner una vez tomada la decisión
+        eventoInstalacion = null;
+        banner.style.display = 'none';
+      }
+    });
+  </script>
+</body>
 </html>
+
